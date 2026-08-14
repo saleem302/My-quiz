@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>A Little Quiz ❤️</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:Arial,sans-serif;background:linear-gradient(135deg,#fff0f5,#f3e8ff);color:#111;padding:18px}
+.card{max-width:520px;margin:20px auto;background:#fff;border-radius:28px;padding:28px 21px;box-shadow:0 12px 35px #0002}
+.page{display:none}.page.active{display:block}
+.center{text-align:center}h1{color:#b83280;margin-top:12px}h2{color:#b83280}
+p{line-height:1.6;color:#555}
+input,textarea{width:100%;padding:15px;border:2px solid #ddd;border-radius:15px;font-size:16px;color:#111;margin-top:9px}
+textarea{min-height:150px;resize:vertical}
+.mainBtn{display:block;margin:20px auto 0;border:0;border-radius:25px;padding:14px 28px;background:#b83280;color:white;font-size:16px}
+.question{font-size:20px;font-weight:700;line-height:1.5;margin:24px 0 15px}
+.option{display:block;width:100%;padding:15px;margin:10px 0;border:2px solid #ccc;border-radius:15px;background:#fff;color:#111;text-align:left;font-size:16px;font-weight:600}
+.option.correct{background:#eafff1;border-color:#159447}
+.option.wrong{background:#fff0f0;border-color:#d33}
+.feedback{font-weight:700;min-height:25px;margin-top:12px}
+.progress{height:8px;background:#eee;border-radius:10px;overflow:hidden;margin:15px 0}
+.bar{height:100%;width:0;background:#b83280}
+.score{font-size:44px;font-weight:700;color:#b83280}
+.small{font-size:14px;color:#777}
+</style>
+</head>
+<body>
+<div class="card">
+
+<!-- PAGE 1 -->
+<section id="p1" class="page active center">
+<div style="font-size:54px">❤️</div>
+<h1>A Little Question For You</h1>
+<p>Before the quiz begins, I want you to tell me a little about yourself.</p>
+<input id="name" placeholder="Enter your name">
+<textarea id="who" placeholder="Who am I to you? Describe me in your own words..."></textarea>
+<button class="mainBtn" onclick="start()">Continue 💌</button>
+</section>
+
+<!-- PAGE 2 -->
+<section id="p2" class="page center">
+<div style="font-size:54px">🌷</div>
+<p>Welcome,</p>
+<h1 id="welcomeName"></h1>
+<h2>Are you ready? 👀</h2>
+<p>Now let's see how well you really know me.</p>
+<button class="mainBtn" onclick="beginQuiz()">Start The Quiz ✨</button>
+</section>
+
+<!-- QUIZ -->
+<section id="quizPage" class="page">
+<div class="center"><div style="font-size:42px">🧠❤️</div><h1>How Well Do You Know Me?</h1><p id="count"></p></div>
+<div class="progress"><div class="bar" id="bar"></div></div>
+<div id="quiz"></div>
+<div id="feedback" class="feedback"></div>
+<button class="mainBtn" id="nextBtn" onclick="nextQuestion()">Next →</button>
+</section>
+
+<!-- RESULT -->
+<section id="resultPage" class="page center">
+<div style="font-size:54px">🎉</div>
+<h1>Quiz Complete!</h1>
+<p>Your score is</p>
+<div class="score" id="score"></div>
+<p id="resultMessage"></p>
+<button class="mainBtn" onclick="showFinal()">One Last Question ❤️</button>
+</section>
+
+<!-- FINAL -->
+<section id="finalPage" class="page center">
+<div style="font-size:54px">💭</div>
+<h1>One Last Question</h1>
+<p><b>After everything you know about me, how would you describe me in your own words, and what do you think I mean to you?</b></p>
+<textarea id="finalAnswer" placeholder="Write your answer here..."></textarea>
+<button class="mainBtn" onclick="finish()">Submit ❤️</button>
+<p id="finishMessage"></p>
+</section>
+
+</div>
+
+<script>
+const questions=[["What was the first thing I noticed about you?", ["Your smile", "Your name", "Your voice", "Your personality"], 1], ["What is one thing I get jealous about?", ["When you spend too much time with your friends", "When another guy gets too close to you", "When you suddenly become quiet with me"], 1], ["What is something about you that I can never get tired of?", ["Talking to you", "Your personality", "Your kindness", "Your sense of humour"], 0], ["What do I usually enjoy doing when I have free time?", ["Playing games", "Watching movies", "Chatting with people", "Sleeping"], 0], ["What kind of movies do I enjoy watching the most?", ["Action movies", "Romance movies", "Comedy movies", "Horror movies"], 0], ["What is something I dislike the most?", ["Lies", "Disrespect", "Bad manners", "Unnecessary arguments"], 0], ["What affects me the most?", ["When someone I care about changes toward me", "Losing a game", "Having a bad day at school", "Someone disagreeing with me"], 0], ["What do I do when I really like something?", ["I show my interest in it", "I quickly lose interest", "I pretend I don't care", "I avoid talking about it"], 0], ["What kind of person am I when I really care about something?", ["I pay attention and care about what I like", "I become distant", "I don't really care what happens", "I prefer not to talk much"], 0], ["Who is my favourite sibling?", ["Salima", "Khalifa", "Mahmud", "Hauwa"], 0], ["Do you think I am a loyal person?", ["Yes, very loyal", "Sometimes", "Not really", "I'm not sure"], 0], ["What hurts me the most?", ["When someone I care about changes toward me", "Losing a game", "Getting a bad grade", "Missing out on something fun"], 0], ["Which name do I like most?", ["Sultan", "Chu Chu", "Baban airah", "Jaan"], 0], ["What do I believe is most important in love?", ["Loyalty", "Trust", "Communication", "Understanding"], 1], ["How do I usually feel when another guy gets too close to Maryam?", ["I get jealous", "I don't care at all", "I find it funny", "I get excited for her"], 0], ["Which season do I like the most?", ["Rainy season", "Harmattan season", "Hot/dry season", "Cold season"], 0], ["Which country would I most like to visit?", ["Spain", "Portugal", "Germany", "Switzerland"], 2], ["Which type of place would I enjoy visiting the most?", ["A beautiful city", "A quiet countryside", "A beach", "A historical place"], 1], ["Which of these would I choose for a relaxing day?", ["Staying somewhere peaceful", "Going to a crowded event", "Going shopping", "Going to a busy city"], 0], ["When I finally get to meet my sultana, what would I want first?", ["Kiss", "Hug", "Eye contact", "Walking together with her"], 1]];
+let current=0,score=0,answered=false;
+
+function show(id){
+ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+ document.getElementById(id).classList.add('active');
+ window.scrollTo(0,0);
+}
+
+function start(){
+ const n=document.getElementById('name').value.trim();
+ const w=document.getElementById('who').value.trim();
+ if(!n||!w){alert('Please enter your name and describe who I am to you ❤️');return;}
+ document.getElementById('welcomeName').textContent=n;
+ show('p2');
+}
+
+function beginQuiz(){
+ current=0;score=0;renderQuestion();show('quizPage');
+}
+
+function renderQuestion(){
+ answered=false;
+ const q=questions[current];
+ document.getElementById('count').textContent='Question '+(current+1)+' of '+questions.length;
+ document.getElementById('bar').style.width=(current/questions.length*100)+'%';
+ document.getElementById('feedback').textContent='';
+ const box=document.getElementById('quiz');
+ box.innerHTML='<div class="question">'+(current+1)+'. '+q[0]+'</div>';
+ q[1].forEach((answer,index)=>{
+   const b=document.createElement('button');
+   b.className='option';
+   b.textContent=String.fromCharCode(65+index)+'. '+answer;
+   b.onclick=()=>choose(index);
+   box.appendChild(b);
+ });
+ document.getElementById('nextBtn').textContent=current===questions.length-1?'Finish ❤️':'Next →';
+}
+
+function choose(index){
+ if(answered)return;
+ answered=true;
+ const q=questions[current];
+ const buttons=document.querySelectorAll('.option');
+ buttons.forEach((b,i)=>{
+   b.disabled=true;
+   if(i===q[2])b.classList.add('correct');
+   if(i===index && i!==q[2])b.classList.add('wrong');
+ });
+ if(index===q[2]){
+   score++;
+   document.getElementById('feedback').textContent='Correct! ✅';
+ }else{
+   document.getElementById('feedback').textContent='Incorrect ❌  Correct answer: '+q[1][q[2]];
+ }
+}
+
+function nextQuestion(){
+ if(!answered){alert('Please choose an answer first ❤️');return;}
+ current++;
+ if(current<questions.length){renderQuestion();return;}
+ document.getElementById('score').textContent=score+' / '+questions.length;
+ document.getElementById('resultMessage').textContent=
+   score===20?'Wow! You really know me! ❤️':
+   score>=15?'You know me very well! 😄❤️':
+   score>=10?'Not bad! There is still more to discover. 👀❤️':
+   'Looks like we need more conversations. 😂❤️';
+ show('resultPage');
+}
+
+function showFinal(){
+ show('finalPage');
+}
+
+function finish(){
+ const answer=document.getElementById('finalAnswer').value.trim();
+ if(!answer){alert('Please write your answer first ❤️');return;}
+ document.getElementById('finishMessage').textContent='Thank you for your answer ❤️';
+ document.getElementById('finalAnswer').disabled=true;
+}
+</script>
+</body>
+</html>
